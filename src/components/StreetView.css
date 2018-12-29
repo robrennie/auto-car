@@ -1,0 +1,26 @@
+.grid {
+    border-collapse: collapse;
+    align-self: center;
+}
+.cell_block {
+    width: 14px;
+    height: 14px;
+    background-color: green;
+    font-size: 5px;
+}
+
+.cell_road {
+    width: 12px;
+    height: 12px;
+    background-color: black;
+    color: white;
+    font-size: 8px;
+}
+
+.crash {
+    color: red;
+}
+
+.stopped {
+    color: yellow;
+}
