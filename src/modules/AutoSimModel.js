@@ -8,10 +8,10 @@ export default class AutoSimModel {
         this.gridCx = this.blocksCx * this.blockSize + 2 * (this.blocksCx - 1);
         this.gridCy = this.blocksCy * this.blockSize + 2 * (this.blocksCy - 1);
         this.grid = [];
-        this.totalStops = 0;
         this.currentCars = 0;
         this.averageStops = 0;
         this.currentStops = 0;
+        this.courtiousness = modelProps.courtiousness;
 
         this.clear();
     }
@@ -19,7 +19,6 @@ export default class AutoSimModel {
     clear() {
 
         this.grid = [];
-        this.totalStops = 0;
         this.totalCars = 0;
         this.averageStops = 0;
 
@@ -36,20 +35,19 @@ export default class AutoSimModel {
         for (y = this.blockSize; y < this.gridCy; y += (this.blockSize + 2)) {
             for (x = 0; x < this.gridCx; x++) {
                 this.grid[y][x].cellType = 'road';
-                this.grid[y][x].direction = 'west';
+                this.grid[y][x].direction.push('west');
                 this.grid[y + 1][x].cellType = 'road';
-                this.grid[y + 1][x].direction = 'east';
+                this.grid[y + 1][x].direction.push('east');
             }
         }
         for (x = this.blockSize; x < this.gridCx; x += (this.blockSize + 2)) {
             for (y = 0; y < this.gridCy; y++) {
                 this.grid[y][x].cellType = 'road';
-                this.grid[y][x].direction = 'south';
+                this.grid[y][x].direction.push('south');
                 this.grid[y][x + 1].cellType = 'road';
-                this.grid[y][x + 1].direction = 'north';
+                this.grid[y][x + 1].direction.push('north');
             }
         }
-
     }
 
     next() {
@@ -62,8 +60,9 @@ export default class AutoSimModel {
         for (var y = 0; y < this.gridCy; y++) {
             let newRow = [];
             for (var x = 0; x < this.gridCx; x++) {
-                let newCell = new GridCell();
-                newCell = { ...this.grid[y][x] };
+
+                // copy grid cell
+                let newCell = new GridCell(this.grid[y][x]);
                 newCell.car = null;
                 newRow.push(newCell);
             }
@@ -73,20 +72,8 @@ export default class AutoSimModel {
         // compute new car positions
         for (y = 0; y < this.gridCy; y++) {
             for (x = 0; x < this.gridCx; x++) {
-                if (this.grid[y][x].car) {
-                    let newCoords = this.grid[y][x].car.move(y, x, this.grid);
-                    if (newCoords )
-                    {
-                        let gridCell = newGrid[newCoords.y][newCoords.x];
-                        if(newCoords.y !== y && newCoords.x !== x && gridCell.car) {
-                            gridCell.isCrash = true;
-                            noCrash = false;
-                            this.grid[y][x].isCrash = true;
-                        }
-                        else
-                            gridCell.car = this.grid[y][x].car;
-                    }
-                }
+                if (!this.moveCar(y, x, newGrid))
+                    noCrash = false;
             }
         }
 
@@ -98,9 +85,27 @@ export default class AutoSimModel {
         return noCrash;
     }
 
+    moveCar(y, x, newGrid) {
+        let noCrash = true;
+        if (this.grid[y][x].car) {
+            let newCoords = this.grid[y][x].car.move(y, x, this.grid, this);
+            if (newCoords) {
+                let gridCell = newGrid[newCoords.y][newCoords.x];
+                if (newCoords.y !== y && newCoords.x !== x && gridCell.car) {
+                    gridCell.isCrash = true;
+                    noCrash = false;
+                    this.grid[y][x].isCrash = true;
+                }
+                else
+                    gridCell.car = this.grid[y][x].car;
+            }
+        }
+        return noCrash
+    }
+
     randomCarStartInfo() {
 
-        const defaultSpeed = 1; // only speed of 1 is supported by crash checks
+        const defaultSpeed = 1; // only speed of 1 is supported in this simple model
 
         const randomSide = Math.floor(Math.random() * 4) + 1;
         const randomFactorX = Math.floor(Math.random() * (this.blocksCx - 1)) * (this.blockSize + 2) + this.blockSize;
@@ -141,6 +146,42 @@ export default class AutoSimModel {
             }
     }
 
+    allCarStartInfo() {
+
+        let allCar = [];
+        const defaultSpeed = 1; // only speed of 1 is supported in this simple model
+
+        for (let y = this.blockSize; y < this.gridCy; y += (this.blockSize + 2)) {
+            allCar.push({
+                startY: y,
+                startX: this.gridCx - 1,
+                direction: 'west',
+                speed: defaultSpeed
+            });
+            allCar.push({
+                startY: y + 1,
+                startX: 0,
+                direction: 'east',
+                speed: defaultSpeed
+            })
+        }
+        for (let x = this.blockSize; x < this.gridCx; x += (this.blockSize + 2)) {
+            allCar.push({
+                startY: 0,
+                startX: x,
+                direction: 'south',
+                speed: defaultSpeed
+            });
+            allCar.push({
+                startY: this.gridCy - 1,
+                startX: x + 1,
+                direction: 'north',
+                speed: defaultSpeed
+            })
+        }
+        return allCar;
+    }
+
     updateCounts() {
 
         this.currentStops = 0;
@@ -148,14 +189,12 @@ export default class AutoSimModel {
 
         for (var y = 0; y < this.gridCy; y++) {
             for (var x = 0; x < this.gridCx; x++) {
-                if( this.grid[y][x].car ) {
+                if (this.grid[y][x].car) {
                     this.currentCars += 1;
-                if( this.grid[y][x].car.isStopped)
-                    this.currenStops += 1;
+                    this.currentStops += this.grid[y][x].car.stops;
                 }
             }
         }
         this.averageStops = this.currentStops / this.currentCars;
-        this.totalStops += this.currentStops;
     }
 }
