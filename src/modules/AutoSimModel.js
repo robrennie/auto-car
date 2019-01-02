@@ -11,7 +11,7 @@ export default class AutoSimModel {
         this.currentCars = 0;
         this.averageStops = 0;
         this.currentStops = 0;
-        this.courtiousness = modelProps.courtiousness;
+        this.courteousness = modelProps.courteousness;
 
         this.clear();
     }

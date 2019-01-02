@@ -34,7 +34,7 @@ export default class Car4 extends Car {
         }
 
         // be altruistic n% of the time
-        let beCourteous = (reservePath.length > 1 && Math.floor(Math.random() * 100) < model.courtiousness);
+        let beCourteous = (reservePath.length > 1 && Math.floor(Math.random() * 100) < model.courteousness);
         if (beCourteous || !this.canReserve(reservePath, grid)) {
             newPos = { y, x };
             this.stops += 1;

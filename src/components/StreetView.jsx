@@ -18,7 +18,7 @@ export default class StreetView extends React.Component {
             blocksCx: 6,
             blocksCy: 6,
             blockSize: 2,
-            courtiousness: 10,
+            courteousness: 10,
             useCar: 4,
         };
         this.model = new AutoSimModel(this.state);
@@ -33,7 +33,7 @@ export default class StreetView extends React.Component {
         this.onChangeBlocksCx = this.onChangeBlocksCx.bind(this);
         this.onChangeBlocksCy = this.onChangeBlocksCy.bind(this);
         this.onChangeBlockSize = this.onChangeBlockSize.bind(this);
-        this.onChangeCourtiousness = this.onChangeCourtiousness.bind(this);
+        this.onChangeCourteousness = this.onChangeCourteousness.bind(this);
         this.onChangeUseCar = this.onChangeUseCar.bind(this);
     }
 
@@ -191,9 +191,9 @@ export default class StreetView extends React.Component {
         });
     }
 
-    onChangeCourtiousness(e) {
+    onChangeCourteousness(e) {
         this.doReset({
-            courtiousness: Number(e.target.value),
+            courteousness: Number(e.target.value),
         })
     }
 
@@ -252,7 +252,7 @@ export default class StreetView extends React.Component {
                 Blocks Horizontal: <input type="text" onChange={this.onChangeBlocksCx} value={this.state.blocksCx} size='4' /><br />
                 Blocks Vertical: <input type="text" onChange={this.onChangeBlocksCy} value={this.state.blocksCy} size='4' /><br />
                 Block Size: <input type="text" onChange={this.onChangeBlockSize} value={this.state.blockSize} size='4' /><br />
-                Courtiousness (%): <input type="text" onChange={this.onChangeCourtiousness} value={this.state.courtiousness} size='4' /><br />
+                Courteousness (%): <input type="text" onChange={this.onChangeCourteousness} value={this.state.courteousness} size='4' /><br />
                 Car Model (1 or 4): <input type="text" onChange={this.onChangeUseCar} value={this.state.useCar} size='4' /><br />
             </div>
         )
